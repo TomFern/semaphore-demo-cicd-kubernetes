@@ -10,6 +10,8 @@ blocks:
       jobs:
         - name: Image
           commands:
+            - doctl auth init --access-token $DO_ACCESS_TOKEN
+            - 'doctl kubernetes cluster kubeconfig save "${CLUSTER_NAME}"'
             - kubectl get all -o wide
             - kubectl get events
             - kubectl describe deployment addressbook-canary || true
