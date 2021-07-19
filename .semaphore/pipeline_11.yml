@@ -34,7 +34,7 @@ blocks:
             - 'doctl kubernetes cluster kubeconfig save "${CLUSTER_NAME}"'
             - checkout
             - kubectl apply -f manifests/service.yml
-            - './apply.sh manifests/deployment.yml addressbook-canary 1 $DOCKER_USERNAME/demo:$SEMAPHORE_WORKFLOW_ID'
+            - './apply.sh manifests/deployment.yml addressbook-canary 1 registry.digitalocean.com/cicd/demo:$SEMAPHORE_WORKFLOW_ID'
             - if kubectl get deployment addressbook-stable; then kubectl scale --replicas=2 deployment/addressbook-stable; fi
   - name: Functional Tests
     task:
