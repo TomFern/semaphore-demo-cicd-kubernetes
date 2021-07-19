@@ -24,6 +24,3 @@ blocks:
           value: semaphore-demo-cicd-kubernetes
         - name: REGISTRY_NAME
           value: cicd
-promotions:
-  - name: Promotion 1
-    pipeline_file: pipeline_13.yml
