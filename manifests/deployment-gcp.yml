@@ -19,7 +19,7 @@ spec:
         deployment: $deployment
     spec:
       imagePullSecrets:
-      - name: registry-${REGISTRY_NAME}
+      - name: dockerhub
       containers:
       - name: addressbook
         image: $img
