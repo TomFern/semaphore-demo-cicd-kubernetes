@@ -1,0 +1,49 @@
+version: v1.0
+name: DigitalOcean
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Push
+    task:
+      jobs:
+        - name: Image
+          commands:
+            - doctl registry login
+            - 'docker pull $SEMAPHORE_REGISTRY_URL/demo:$SEMAPHORE_WORKFLOW_ID'
+            - 'docker tag $SEMAPHORE_REGISTRY_URL/demo:$SEMAPHORE_WORKFLOW_ID registry.digitalocean.com/cicd/demo:$SEMAPHORE_WORKFLOW_ID'
+            - 'docker push registry.digitalocean.com/cicd/demo:$SEMAPHORE_WORKFLOW_ID'
+      secrets:
+        - name: do-key
+  - name: Deploy
+    task:
+      secrets:
+        - name: db-params-do
+        - name: do-key
+      env_vars:
+        - name: CLUSTER_NAME
+          value: semaphore-demo-cicd-kubernetes
+      jobs:
+        - name: Image
+          commands:
+            - doctl auth init --access-token $DO_ACCESS_TOKEN
+            - 'doctl kubernetes cluster kubeconfig save "${CLUSTER_NAME}"'
+            - checkout
+            - kubectl apply -f manifests/service.yml
+            - './apply.sh manifests/deployment.yml addressbook-canary 1 $DOCKER_USERNAME/demo:$SEMAPHORE_WORKFLOW_ID'
+            - if kubectl get deployment addressbook-stable; then kubectl scale --replicas=2 deployment/addressbook-stable; fi
+  - name: Functional Tests
+    task:
+      env_vars:
+        - name: CLUSTER_NAME
+          value: semaphore-demo-cicd-kubernetes
+      jobs:
+        - name: Test and migrate
+          commands:
+            - doctl auth init --access-token $DO_ACCESS_TOKEN
+            - 'doctl kubernetes cluster kubeconfig save "${CLUSTER_NAME}"'
+            - checkout
+            - POD=$(kubectl get pod -l deployment=addressbook-canary -o name \ | head -n 1)
+            - kubectl exec -it "$POD" -- npm run ping
+            - kubectl exec -it "$POD" -- npm run migrate

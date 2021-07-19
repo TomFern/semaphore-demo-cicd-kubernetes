@@ -49,3 +49,8 @@ blocks:
             - 'docker pull $SEMAPHORE_REGISTRY_URL/demo:$SEMAPHORE_WORKFLOW_ID'
             - 'docker tag $SEMAPHORE_REGISTRY_URL/demo:$SEMAPHORE_WORKFLOW_ID  $SEMAPHORE_REGISTRY_URL/demo:latest'
             - 'docker push $SEMAPHORE_REGISTRY_URL/demo:latest'
+promotions:
+  - name: Canary
+    pipeline_file: pipeline_11.yml
+    auto_promote:
+      when: result = 'passed' and (branch = 'master' or tag =~ '^hotfix*')
