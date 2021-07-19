@@ -10,12 +10,14 @@ blocks:
       jobs:
         - name: Image
           commands:
+            - doctl auth init -t $DO_ACCESS_TOKEN
             - doctl registry login
             - 'docker pull $SEMAPHORE_REGISTRY_URL/demo:$SEMAPHORE_WORKFLOW_ID'
             - 'docker tag $SEMAPHORE_REGISTRY_URL/demo:$SEMAPHORE_WORKFLOW_ID registry.digitalocean.com/cicd/demo:$SEMAPHORE_WORKFLOW_ID'
             - 'docker push registry.digitalocean.com/cicd/demo:$SEMAPHORE_WORKFLOW_ID'
       secrets:
         - name: do-key
+        - name: registry
   - name: Deploy
     task:
       secrets:
