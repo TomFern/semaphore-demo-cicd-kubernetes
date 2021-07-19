@@ -52,8 +52,11 @@ blocks:
             - doctl auth init --access-token $DO_ACCESS_TOKEN
             - 'doctl kubernetes cluster kubeconfig save "${CLUSTER_NAME}"'
             - checkout
-            - POD=$(kubectl get pod -l deployment=addressbook-canary -o name \ | head -n 1)
+            - POD=$(kubectl get pod -l deployment=addressbook-canary -o name | head -n 1)
             - kubectl exec -it "$POD" -- npm run ping
             - kubectl exec -it "$POD" -- npm run migrate
       secrets:
         - name: do-key
+promotions:
+  - name: Stable
+    pipeline_file: pipeline_12.yml
