@@ -1,0 +1,24 @@
+version: v1.0
+name: DigitalOcean
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Rollback
+    task:
+      jobs:
+        - name: Image
+          commands:
+            - kubectl get all -o wide
+            - kubectl get events
+            - kubectl describe deployment addressbook-canary || true
+            - POD=$(kubectl get pod -l deployment=addressbook-canary -o name | head -n 1)
+            - kubectl logs "$POD" || true
+            - if kubectl get deployment addressbook-stable; then kubectl scale --replicas=3 deployment/addressbook-stable; fi
+            - if kubectl get deployment addressbook-canary; then kubectl delete deployment/addressbook-canary;  fi
+      secrets:
+        - name: do-key
+      env_vars:
+        - name: CLUSTER_NAME
+          value: semaphore-demo-cicd-kubernetes

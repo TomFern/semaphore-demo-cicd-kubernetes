@@ -15,7 +15,7 @@ blocks:
             - checkout
             - kubectl apply -f manifests/service.yml
             - './apply.sh manifests/deployment.yml addressbook-stable 3 registry.digitalocean.com/$REGISTRY_NAME/demo:$SEMAPHORE_WORKFLOW_ID'
-            - if kubectl get deployment addressbook-stable; then kubectl scale --replicas=2 deployment/addressbook-stable; fi
+            - if kubectl get deployment addressbook-canary; then kubectl delete deployment/addressbook-canary; fi
       secrets:
         - name: db-params-do
         - name: do-key
@@ -24,3 +24,6 @@ blocks:
           value: semaphore-demo-cicd-kubernetes
         - name: REGISTRY_NAME
           value: cicd
+promotions:
+  - name: Promotion 1
+    pipeline_file: pipeline_13.yml

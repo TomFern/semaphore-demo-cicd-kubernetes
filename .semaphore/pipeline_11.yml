@@ -60,3 +60,7 @@ blocks:
 promotions:
   - name: Stable
     pipeline_file: pipeline_12.yml
+  - name: Rollback
+    pipeline_file: pipeline_14.yml
+    auto_promote:
+      when: result = 'failed'
